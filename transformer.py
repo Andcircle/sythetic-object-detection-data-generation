@@ -135,7 +135,8 @@ def draw_contour(image, contour):
     cv2.line(image, tuple(contour[-1]), tuple(contour[0]), (0,255,0,255), 2)
 
 
-def draw_bbox(image, bbox):
+def draw_bbox(image, bbox, color=(0,255,0,255), line=1):
+    bbox=np.rint(bbox).astype('int')
     x1, y1 = bbox[0]
     x2, y2 = bbox[1]
     p1=(x1, y1)
@@ -143,10 +144,10 @@ def draw_bbox(image, bbox):
     p3=(x2, y2)
     p4=(x1, y2)
 
-    cv2.line(image, tuple(p1), tuple(p2), (0,255,0,255), 2)
-    cv2.line(image, tuple(p2), tuple(p3), (0,255,0,255), 2)
-    cv2.line(image, tuple(p3), tuple(p4), (0,255,0,255), 2)
-    cv2.line(image, tuple(p4), tuple(p1), (0,255,0,255), 2)
+    cv2.line(image, tuple(p1), tuple(p2), color, line)
+    cv2.line(image, tuple(p2), tuple(p3), color, line)
+    cv2.line(image, tuple(p3), tuple(p4), color, line)
+    cv2.line(image, tuple(p4), tuple(p1), color, line)
 
 
 def crop_image(image):
@@ -172,7 +173,7 @@ def crop_image(image):
 
 
 
-def random_transform_image(image, min_scale=0.3, max_scale=0.7, max_rotate_XY=90, max_rotate_Z=45):
+def random_transform_image(image, min_scale=0.3, max_scale=1.5, max_rotate_XY=90, max_rotate_Z=45):
 
     theta=random.random() * max_rotate_XY - max_rotate_XY/2
     phi=random.random() * max_rotate_XY - max_rotate_XY/2

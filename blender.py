@@ -40,6 +40,10 @@ class Blender:
         transformed_obj_img = transformer.random_transform_image(self.objects[id]['image'])
         oh, ow, _ = transformed_obj_img.shape
         bh, bw, _ = background_image.shape
+
+        if oh>=bh or ow>=bw:
+            return None, None
+
         h = random.randrange(0,bh-oh)
         w = random.randrange(0,bw-ow)
 
