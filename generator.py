@@ -74,6 +74,9 @@ def xywh2xyxy(xywh, image_shape):
 
 def generate(args):
     bld = blender.Blender(args.object_dir, args.csv_path)
+    names = bld.get_sign_names()
+    # used for statistics
+    class_counter={name:0 for name in names}
     names = [name + '\n' for name in bld.get_sign_names()]
 
     with open(args.name_path, 'w') as name_file:
@@ -114,6 +117,8 @@ def generate(args):
 
         xml_label_name = background_name.split('.')[0] + '.xml'
         txt_label_name = background_name.split('.')[0] + '.txt'
+
+        # split traing and validation 8 to 2
         if i%10<8:
             xml_label_path = os.path.join(xml_train_label_dir, xml_label_name)
             txt_label_path = os.path.join(txt_train_label_dir, txt_label_name)
@@ -142,8 +147,9 @@ def generate(args):
         depth.text = str(d)
 
         with open(txt_label_path, 'w') as f_txt:
-
-            r = random.randrange(0,4)
+            
+            # Each image has 1~5 traffic signs
+            r = random.randrange(1,5)
             for j in range(r):
                 obj, bbox = bld.blend(background_image)
                 if obj is None:
@@ -171,6 +177,8 @@ def generate(args):
                 ymax = et.SubElement(bndbox, 'ymax')
                 ymax.text = str(bbox[1,1])
 
+                class_counter[obj['sign_name']]+=1
+                
                 h, w, _ = background_image.shape
                 r = args.resize_size / max(h, w)
                 wh=[(bbox[1,0]-bbox[0,0])*r, (bbox[1,1]-bbox[0,1])*r]
@@ -211,6 +219,10 @@ def generate(args):
         str_yolo_tiny_anchor = 'yolo_tiny_anchor: \n' + \
             np.array2string(np.rint(yolo_tiny_anchor).astype('int')) + '\n'
         meta.write(str_yolo_tiny_anchor)
+
+        meta.write('\n class counter: \n')
+        for name, count in class_counter.items():
+            meta.write('{}: {} \n'.format(name, count))
 
 
 def parse_xml(xml):
